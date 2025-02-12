@@ -22,7 +22,7 @@ public class JWTProvider {
       return subject;
     } catch (JWTVerificationException ex) {
       ex.printStackTrace();
-      return "";
+      return null;
     }
   }
 }

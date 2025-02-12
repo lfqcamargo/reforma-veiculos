@@ -14,7 +14,8 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import reforma.api.modules.shared.exceptions.ResourceNotFoundError;
-import reforma.api.modules.users.dto.AuthUserDTO;
+import reforma.api.modules.users.dto.AuthUserRequestDTO;
+import reforma.api.modules.users.dto.AuthUserResponseDTO;
 import reforma.api.modules.users.repositories.UsersRepository;
 
 
@@ -30,9 +31,9 @@ public class AuthenticateUserUseCase {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  public String execute(AuthUserDTO authUserDTO) throws AuthenticationException {
+  public AuthUserResponseDTO execute(AuthUserRequestDTO authUserDTO) throws AuthenticationException {
     var user = this.usersRepository.findByEmail(authUserDTO.getEmail()).orElseThrow(() -> {
-      throw new ResourceNotFoundError("email/password incorrect");
+      throw new ResourceNotFoundError("email/senha incorreto");
     });
 
     var passwordMatches = this.passwordEncoder.matches(authUserDTO.getPassword(), user.getPassword());
@@ -41,12 +42,17 @@ public class AuthenticateUserUseCase {
     }
 
     Algorithm algorithm = Algorithm.HMAC256(secretKey);
-
+    var expiresIn = Instant.now().plus(Duration.ofDays(10));
     var token = JWT.create().withIssuer("reforma")
-        .withExpiresAt(Instant.now().plus(Duration.ofHours(2)))
+        .withExpiresAt(expiresIn)
         .withSubject(user.getId().toString())
         .sign(algorithm);
 
-    return token;
+    var AuthUserResponse = AuthUserResponseDTO.builder()
+      .access_token(token)
+      .expires_in(expiresIn.toEpochMilli())
+      .build();
+
+    return AuthUserResponse;
   }
 }

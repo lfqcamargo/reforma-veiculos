@@ -3,16 +3,22 @@ package reforma.api.modules.application.controllers;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import reforma.api.modules.application.dto.CreateTransactionDTO;
+import reforma.api.modules.application.dto.TransactionsResponseDTO;
 import reforma.api.modules.application.entities.TransactionEntity;
 import reforma.api.modules.application.useCases.CreateTransactionUseCase;
+import reforma.api.modules.application.useCases.FindTransactionsByUserUseCase;
 
 @RestController
 @RequestMapping("/transactions")
@@ -21,10 +27,12 @@ public class TransactionController {
   @Autowired
   private CreateTransactionUseCase createTransactionUseCase;
 
+  @Autowired
+  private FindTransactionsByUserUseCase findTransactionsByUserUseCase;
+
   @PostMapping("/")
   public TransactionEntity create(
-    @Valid @
-    RequestBody CreateTransactionDTO createTransactionDTO, 
+    @Valid @RequestBody CreateTransactionDTO createTransactionDTO, 
     HttpServletRequest request
     ) {
       var userId = request.getAttribute("user_id");
@@ -47,6 +55,19 @@ public class TransactionController {
           .build();
 
       return createTransactionUseCase.execute(transactionEntity);
+  }
+
+  @GetMapping("/")
+  public TransactionsResponseDTO getAllByUser(
+    HttpServletRequest request,
+    @RequestParam(defaultValue = "1") int page,
+    @RequestParam(defaultValue = "10") int size
+    ) {
+      var userIdString = (String) request.getAttribute("user_id");
+      UUID userId = UUID.fromString(userIdString);
+
+      Pageable pageable = PageRequest.of(page - 1, size);
+      return findTransactionsByUserUseCase.execute(userId, pageable);
   }
 
 }

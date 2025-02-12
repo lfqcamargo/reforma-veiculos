@@ -12,13 +12,17 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import reforma.api.modules.users.entities.UserEntity;
 
 @Entity(name="transactions")
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class TransactionEntity {
   
   @Id

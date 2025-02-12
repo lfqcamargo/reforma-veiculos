@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import reforma.api.modules.users.dto.AuthUserDTO;
+import reforma.api.modules.users.dto.AuthUserRequestDTO;
 import reforma.api.modules.users.useCases.AuthenticateUserUseCase;
 
 
@@ -22,7 +22,7 @@ public class AuthUserController {
   private AuthenticateUserUseCase authenticateUserUseCase;
 
   @PostMapping("/")
-  public ResponseEntity<Object> create(@RequestBody AuthUserDTO authCompanyDTO) {
+  public ResponseEntity<Object> create(@RequestBody AuthUserRequestDTO authCompanyDTO) {
     try {
       var result = authenticateUserUseCase.execute(authCompanyDTO);
       return ResponseEntity.ok(result);
