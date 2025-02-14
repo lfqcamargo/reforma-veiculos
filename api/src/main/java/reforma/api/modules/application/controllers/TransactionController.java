@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,9 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import reforma.api.modules.application.dto.CreateTransactionDTO;
+import reforma.api.modules.application.dto.TransactionResponseDTO;
 import reforma.api.modules.application.dto.TransactionsResponseDTO;
 import reforma.api.modules.application.entities.TransactionEntity;
 import reforma.api.modules.application.useCases.CreateTransactionUseCase;
+import reforma.api.modules.application.useCases.FindTransactionById;
 import reforma.api.modules.application.useCases.FindTransactionsByUserUseCase;
 
 @RestController
@@ -26,6 +29,9 @@ public class TransactionController {
   
   @Autowired
   private CreateTransactionUseCase createTransactionUseCase;
+
+  @Autowired
+  private FindTransactionById findTransactionByIdUseCase;
 
   @Autowired
   private FindTransactionsByUserUseCase findTransactionsByUserUseCase;
@@ -56,6 +62,18 @@ public class TransactionController {
 
       return createTransactionUseCase.execute(transactionEntity);
   }
+
+  @GetMapping("/{id}")
+  public TransactionResponseDTO getById(
+    HttpServletRequest request,  
+    @PathVariable UUID id) {
+
+      var userIdString = (String) request.getAttribute("user_id");
+      UUID userId = UUID.fromString(userIdString);
+
+      return findTransactionByIdUseCase.execute(id, userId);
+  }
+  
 
   @GetMapping("/")
   public TransactionsResponseDTO getAllByUser(
